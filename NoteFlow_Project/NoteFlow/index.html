@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoteFlow - Modern Workspace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased h-screen flex overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-72 bg-slate-900 border-r border-slate-800 flex flex-col justify-between">
+        <div>
+            <!-- App Branding -->
+            <div class="p-5 border-b border-slate-800 flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-feather"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold tracking-wide text-lg text-white">NoteFlow</h1>
+                    <p class="text-xs text-slate-400">Personal Workspace</p>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="p-4 space-y-1">
+                <button onclick="filterNotes('all')" id="nav-all" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+                    <i class="fa-solid fa-folder-open w-5"></i>
+                    <span>All Notes</span>
+                </button>
+                <button onclick="filterNotes('Work')" id="nav-Work" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-briefcase w-5"></i>
+                    <span>Work</span>
+                </button>
+                <button onclick="filterNotes('Personal')" id="nav-Personal" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-user w-5"></i>
+                    <span>Personal</span>
+                </button>
+                <button onclick="filterNotes('Ideas')" id="nav-Ideas" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-lightbulb w-5"></i>
+                    <span>Ideas</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Sidebar Footer Stats -->
+        <div class="p-4 border-t border-slate-800 text-xs text-slate-500 flex justify-between items-center">
+            <span>Storage: LocalStorage</span>
+            <span id="total-notes-count" class="bg-slate-800 text-slate-300 px-2 py-1 rounded-md font-mono">0 notes</span>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full bg-slate-950 overflow-hidden">
+        
+        <!-- Top Header Bar -->
+        <header class="h-16 border-b border-slate-800 px-8 flex items-center justify-between bg-slate-900/50 backdrop-blur">
+            <div class="flex items-center space-x-4 w-1/3">
+                <div class="relative w-full">
+                    <i class="fa-solid fa-search absolute left-3 top-3 text-slate-500 text-sm"></i>
+                    <input type="text" id="search-input" oninput="handleSearch()" placeholder="Search notes..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-200 placeholder-slate-500 transition">
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-lg shadow-indigo-600/20 flex items-center space-x-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>New Note</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Dashboard / Notes View -->
+        <div class="flex-1 overflow-y-auto p-8">
+            <div class="max-w-6xl mx-auto">
+                
+                <!-- Hero Banner -->
+                <div class="relative bg-gradient-to-r from-indigo-900/40 via-purple-900/20 to-slate-900 border border-indigo-500/20 rounded-3xl p-8 mb-8 overflow-hidden shadow-2xl">
+                    <div class="relative z-10 max-w-xl">
+                        <span class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Workspace Active</span>
+                        <h2 class="text-3xl font-extrabold text-white mt-3">Capture your thoughts instantly.</h2>
+                        <p class="text-slate-400 text-sm mt-2">Organize your workflow, tag project ideas, and track tasks locally without complex database setups.</p>
+                    </div>
+                </div>
+
+                <!-- Section Title -->
+                <div class="flex justify-between items-center mb-6">
+                    <h3 id="current-category-title" class="text-xl font-bold text-white capitalize">All Notes</h3>
+                    <span id="category-count" class="text-xs text-slate-400 font-medium">Showing all items</span>
+                </div>
+
+                <!-- Notes Grid Container -->
+                <div id="notes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Dynamic cards injected via JS -->
+                </div>
+
+                <!-- Empty State (Hidden by default) -->
+                <div id="empty-state" class="hidden flex flex-col items-center justify-center py-16 text-center">
+                    <div class="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-slate-600 text-2xl mb-4 border border-slate-800">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-slate-300">No notes found</h4>
+                    <p class="text-slate-500 text-sm mt-1">Get started by creating your first note in this category.</p>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Create / Edit Note Modal -->
+    <div id="note-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-5">
+                <h3 id="modal-title" class="text-lg font-bold text-white">Create New Note</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="note-form" onsubmit="saveNote(event)" class="space-y-4">
+                <input type="hidden" id="note-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Title</label>
+                    <input type="text" id="note-title" required placeholder="e.g., Project Architecture Overview" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-slate-200">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Category</label>
+                    <select id="note-category" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-slate-200">
+                        <option value="Work">Work</option>
+                        <option value="Personal">Personal</option>
+                        <option value="Ideas">Ideas</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Content</label>
+                    <textarea id="note-content" rows="4" required placeholder="Write your note details here..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-slate-200 resize-none"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-500 transition shadow-lg shadow-indigo-600/20">Save Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script src="script.js"></script>
+</body>
+</html>
